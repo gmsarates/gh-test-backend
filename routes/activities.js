@@ -4,11 +4,17 @@ const Activity = require('../models/Activity');
 
 // Criar nova atividade
 router.post('/', async (req, res) => {
-    const { name, startTime, endTime } = req.body;
-    const activity = new Activity(name, startTime, endTime);
+    const { name, startTime, endTime } = req.body
+    const activity = new Activity(null, name, startTime, endTime);
     try {
         const newActivity = await Activity.create(activity);
-        res.status(201).json(newActivity);
+        res.status(201).json({
+            id: newActivity.id,
+            name: newActivity.name,
+            startTime: newActivity.startTime,
+            endTime: newActivity.endTime,
+            elapsedTime: newActivity.elapsedTime // Adicionando o elapsedTime ao resultado
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -19,6 +25,7 @@ router.get('/', async (req, res) => {
     try {
         const activities = await Activity.findAll();
         res.json(activities.map(activity => ({
+            id: activity.id,
             name: activity.name,
             startTime: activity.startTime,
             endTime: activity.endTime,
