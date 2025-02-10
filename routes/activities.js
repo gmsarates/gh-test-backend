@@ -18,7 +18,12 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const activities = await Activity.findAll();
-        res.json(activities);
+        res.json(activities.map(activity => ({
+            name: activity.name,
+            startTime: activity.startTime,
+            endTime: activity.endTime,
+            elapsedTime: activity.elapsedTime // Adicionando o elapsedTime ao resultado
+        })));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

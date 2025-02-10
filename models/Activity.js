@@ -1,22 +1,27 @@
-const pool = require('../db');
-
 class Activity {
     constructor(name, startTime, endTime) {
         this.name = name;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.startTime = new Date(startTime);
+        this.endTime = new Date(endTime);
+    }
+
+    get elapsedTime() {
+        const duration = (this.endTime - this.startTime) / 1000;
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        return `${hours}:${minutes}`;
     }
 
     static async create(activity) {
         const query = 'INSERT INTO activities (name, start_time, end_time) VALUES ($1, $2, $3) RETURNING *';
         const result = await pool.query(query, [activity.name, activity.startTime, activity.endTime]);
-        return result.rows[0];
+        return new Activity(result.rows[0].name, result.rows[0].start_time, result.rows[0].end_time);
     }
 
     static async findAll() {
         const query = 'SELECT * FROM activities ORDER BY start_time';
         const result = await pool.query(query);
-        return result.rows;
+        return result.rows.map(row => new Activity(row.name, row.start_time, row.end_time));
     }
 
     static async deleteById(id) {
